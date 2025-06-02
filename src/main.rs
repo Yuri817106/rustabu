@@ -1,11 +1,44 @@
 use rustabu::io::load_problem_from_file;
+use rustabu::solution::Solution;
+use rustabu::utils::evaluate;
 
 fn main() {
     let path = "src/P4/n4_00.dag";
 
+    // 五組初始解
+    let initial_solutions = vec![
+        (
+            vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+            vec![1, 0, 2, 3, 1, 2, 0, 1, 2, 3, 2, 0, 1, 2, 0, 2, 1, 2, 0, 3],
+        ),
+        (
+            vec![0, 1, 2, 5, 4, 3, 6, 7, 9, 8, 11, 10, 12, 14, 15, 13, 16, 17, 18, 19],
+            vec![2, 0, 1, 2, 1, 3, 0, 2, 1, 0, 2, 3, 0, 2, 3, 1, 2, 3, 0, 2],
+        ),
+        (
+            vec![0, 1, 2, 6, 5, 4, 3, 7, 11, 8, 9, 10, 12, 13, 14, 15, 16, 18, 17, 19],
+            vec![3, 1, 2, 0, 2, 1, 3, 0, 2, 0, 3, 1, 2, 0, 1, 2, 3, 0, 0, 1],
+        ),
+        (
+            vec![0, 1, 6, 3, 2, 5, 4, 7, 10, 9, 11, 8, 12, 15, 14, 13, 16, 18, 17, 19],
+            vec![2, 3, 2, 0, 2, 1, 3, 2, 0, 3, 2, 3, 2, 2, 1, 2, 3, 0, 2, 0],
+        ),
+        (
+            vec![0, 1, 4, 5, 6, 3, 2, 7, 8, 9, 10, 11, 12, 14, 15, 13, 16, 18, 17, 19],
+            vec![2, 2, 1, 0, 3, 2, 2, 3, 3, 0, 1, 0, 2, 3, 0, 3, 3, 1, 0, 2],
+        ),
+    ];
+
+    // 讓使用者選擇要用哪一組初始解（預設用第 0 組）
+    let which = 4;
+
     match load_problem_from_file(path) {
         Ok(problem) => {
-            println!("{:#?}", problem);
+            let (ss, ms) = &initial_solutions[which];
+            let solution = Solution::new(ss.clone(), ms.clone());
+
+            let score = evaluate(&problem, &solution);
+            println!("第 {} 組初始解的 makespan 評估值為: {}", which, score);
         }
         Err(e) => {
             eprintln!("Error reading problem file: {}", e);
