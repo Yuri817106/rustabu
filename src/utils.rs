@@ -58,15 +58,12 @@ pub fn evaluate(problem: &Problem, solution: &Solution) -> f64 {
     // 8. 按照 ss 的順序排程
     for (i, &task_id) in solution.ss.iter().enumerate() {
         let proc_id = solution.ms[i];
-
-        // 前驅任務的最早可開始時間
         let mut ready_time: f64 = 0.0;
         for &pred in &preds[task_id] {
             let pred_proc = task_to_proc[pred];
             let comm_time = if pred_proc == proc_id {
                 0.0
             } else {
-                // 找到對應的資料量
                 let data_vol = problem
                     .trans_data_vol
                     .iter()
@@ -75,15 +72,23 @@ pub fn evaluate(problem: &Problem, solution: &Solution) -> f64 {
                     .unwrap_or(0.0);
                 data_vol * problem.comm_rate[pred_proc][proc_id]
             };
+            // 印出通訊成本
+            // println!(
+            //     "task {} <- pred {}: comm_time = {}, finish_time[pred] = {}",
+            //     task_id, pred, comm_time, finish_time[pred]
+            // );
             ready_time = ready_time.max(finish_time[pred] + comm_time);
         }
-
-        // 任務可開始的最早時間
         let est = f64::max(proc_available[proc_id], ready_time);
         let cost = problem.comp_cost[task_id][proc_id];
         start_time[task_id] = est;
         finish_time[task_id] = est + cost;
         proc_available[proc_id] = finish_time[task_id];
+        // 印出每個任務的排程
+        // println!(
+        //     "task {} on proc {}: start = {}, finish = {}, cost = {}",
+        //     task_id, proc_id, start_time[task_id], finish_time[task_id], cost
+        // );
     }
 
     // 9. makespan = 所有任務的最大完成時間

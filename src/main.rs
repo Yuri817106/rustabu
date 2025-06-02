@@ -30,7 +30,12 @@ fn main() {
     ];
 
     // 讓使用者選擇要用哪一組初始解（預設用第 0 組）
-    let which = 4;
+    let which = std::env::args().nth(1).and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
+
+    if which >= initial_solutions.len() {
+        eprintln!("請輸入 0~{} 之間的整數作為初始解選擇", initial_solutions.len() - 1);
+        return;
+    }
 
     match load_problem_from_file(path) {
         Ok(problem) => {
