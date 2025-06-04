@@ -3,6 +3,7 @@ use rustabu::solution::Solution;
 use rustabu::utils::evaluate;
 use rustabu::search::perturb;
 use rustabu::tabu::TabuList;
+use std::time::Instant;
 
 fn main() {
     let path = "src/P4/n4_00.dag";
@@ -42,29 +43,48 @@ fn main() {
             let mut best_score = evaluate(&problem, &best_solution);
 
             let mut tabu_list = TabuList::new(ss.len());
-
             let max_iter = 1000;
+            let mut min_score = best_score;
+            let mut max_score = best_score;
+
+            let start_time = Instant::now();
+
             for iter in 0..max_iter {
                 let (neighbor, mask_ss, mask_ms) = perturb(&best_solution, problem.processor_count);
 
-                // 檢查是否在 tabu list
-                if tabu_list.contains_ss(&mask_ss) && tabu_list.contains_ms(&mask_ms) {
+                let neighbor_score = evaluate(&problem, &neighbor);
+
+                // Tabu 條件 + Aspiration 條件
+                let is_tabu = tabu_list.contains_ss(&mask_ss) && tabu_list.contains_ms(&mask_ms);
+                let aspiration = neighbor_score < best_score;
+
+                if is_tabu && !aspiration {
                     continue;
                 }
-
-                let neighbor_score = evaluate(&problem, &neighbor);
 
                 if neighbor_score < best_score {
                     best_solution = neighbor.clone();
                     best_score = neighbor_score;
-                    println!("第 {} 代找到更佳解: makespan = {}", iter, best_score);
+                    println!("第 {} 代找到更佳解: makespan = {:.2}", iter, best_score);
+                }
+
+                if neighbor_score < min_score {
+                    min_score = neighbor_score;
+                }
+                if neighbor_score > max_score {
+                    max_score = neighbor_score;
                 }
 
                 tabu_list.push(mask_ss, mask_ms);
             }
 
-            println!("最優解 makespan: {}", best_score);
+            let elapsed = start_time.elapsed();
+
+            println!("最優解 makespan: {:.2}", best_score);
             println!("最優解: {:?}", best_solution);
+            println!("最差解 makespan: {:.2}", max_score);
+            println!("最優與最差解差值: {:.2}", max_score - min_score);
+            println!("總計算時間: {:.3} 秒", elapsed.as_secs_f64());
         }
         Err(e) => {
             eprintln!("Error reading problem file: {}", e);
