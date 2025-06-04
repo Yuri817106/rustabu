@@ -5,8 +5,6 @@ use rustabu::search::perturb;
 
 fn main() {
     let path = "src/P4/n4_00.dag";
-
-    // 五組初始解
     let initial_solutions = vec![
         (
             vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
@@ -30,9 +28,7 @@ fn main() {
         ),
     ];
 
-    // 讓使用者選擇要用哪一組初始解（預設用第 0 組）
     let which = std::env::args().nth(1).and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
-
     if which >= initial_solutions.len() {
         eprintln!("請輸入 0~{} 之間的整數作為初始解選擇", initial_solutions.len() - 1);
         return;
@@ -46,11 +42,13 @@ fn main() {
             let score = evaluate(&problem, &solution);
             println!("第 {} 組初始解的 makespan 評估值為: {}", which, score);
 
-            // 產生鄰近解並計算成本
-            let neighbor = perturb(&solution, problem.processor_count);
+            // 產生鄰近解並取得 mask
+            let (neighbor, mask_ss, mask_ms) = perturb(&solution, problem.processor_count);
             let neighbor_score = evaluate(&problem, &neighbor);
             println!("鄰近解: {:?}", neighbor);
             println!("鄰近解的 makespan 評估值為: {}", neighbor_score);
+            println!("鄰近解變動 mask_ss: {:?}", mask_ss);
+            println!("鄰近解變動 mask_ms: {:?}", mask_ms);
         }
         Err(e) => {
             eprintln!("Error reading problem file: {}", e);

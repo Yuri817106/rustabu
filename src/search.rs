@@ -1,13 +1,14 @@
 use crate::solution::Solution;
 use rand::Rng;
 
-/// 隨機產生一個鄰近解（擾動 ss 或 ms）
-pub fn perturb(solution: &Solution, processor_count: usize) -> Solution {
+// 隨機產生一個鄰近解（擾動 ss 或 ms），並分別回傳 ss/ms 的變動 mask
+pub fn perturb(solution: &Solution, processor_count: usize) -> (Solution, Vec<u8>, Vec<u8>) {
     let mut rng = rand::thread_rng();
     let mut new_ss = solution.ss.clone();
     let mut new_ms = solution.ms.clone();
+    let mut mask_ss = vec![0u8; new_ss.len()];
+    let mut mask_ms = vec![0u8; new_ms.len()];
 
-    // 50% 機率交換 ss 內兩個任務，50% 機率改變 ms 其中一個任務的處理器
     if rng.gen_bool(0.5) {
         // 隨機交換 ss 內兩個不同位置
         let len = new_ss.len();
@@ -18,6 +19,8 @@ pub fn perturb(solution: &Solution, processor_count: usize) -> Solution {
                 j = rng.gen_range(0..len);
             }
             new_ss.swap(i, j);
+            mask_ss[i] = 1;
+            mask_ss[j] = 1;
         }
     } else {
         // 隨機選一個任務，指派到不同處理器
@@ -29,8 +32,9 @@ pub fn perturb(solution: &Solution, processor_count: usize) -> Solution {
                 new_proc = rng.gen_range(0..processor_count);
             }
             new_ms[i] = new_proc;
+            mask_ms[i] = 1;
         }
     }
 
-    Solution::new(new_ss, new_ms)
+    (Solution::new(new_ss, new_ms), mask_ss, mask_ms)
 }
