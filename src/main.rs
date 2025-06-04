@@ -86,7 +86,7 @@ fn main() {
                         println!("第 {} 代找到更佳解: makespan = {:.2}", iter, best_score);
                     } else {
                         no_improve_count += 1;
-                        if no_improve_count >= max_iter / 10 {
+                        if no_improve_count >= max_iter / 5 {
                             // println!("連續 {} 代無改善，重置現行解為最佳解", no_improve_count);
                             current_solution = best_solution.clone();
                             no_improve_count = 0;  // 重置計數器
