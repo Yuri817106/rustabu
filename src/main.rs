@@ -2,6 +2,7 @@ use rustabu::io::load_problem_from_file;
 use rustabu::solution::Solution;
 use rustabu::utils::evaluate;
 use rustabu::search::perturb;
+use rustabu::tabu::TabuList;
 
 fn main() {
     let path = "src/P4/n4_00.dag";
@@ -37,18 +38,33 @@ fn main() {
     match load_problem_from_file(path) {
         Ok(problem) => {
             let (ss, ms) = &initial_solutions[which];
-            let solution = Solution::new(ss.clone(), ms.clone());
+            let mut best_solution = Solution::new(ss.clone(), ms.clone());
+            let mut best_score = evaluate(&problem, &best_solution);
 
-            let score = evaluate(&problem, &solution);
-            println!("第 {} 組初始解的 makespan 評估值為: {}", which, score);
+            let mut tabu_list = TabuList::new(ss.len());
 
-            // 產生鄰近解並取得 mask
-            let (neighbor, mask_ss, mask_ms) = perturb(&solution, problem.processor_count);
-            let neighbor_score = evaluate(&problem, &neighbor);
-            println!("鄰近解: {:?}", neighbor);
-            println!("鄰近解的 makespan 評估值為: {}", neighbor_score);
-            println!("鄰近解變動 mask_ss: {:?}", mask_ss);
-            println!("鄰近解變動 mask_ms: {:?}", mask_ms);
+            let max_iter = 1000;
+            for iter in 0..max_iter {
+                let (neighbor, mask_ss, mask_ms) = perturb(&best_solution, problem.processor_count);
+
+                // 檢查是否在 tabu list
+                if tabu_list.contains_ss(&mask_ss) && tabu_list.contains_ms(&mask_ms) {
+                    continue;
+                }
+
+                let neighbor_score = evaluate(&problem, &neighbor);
+
+                if neighbor_score < best_score {
+                    best_solution = neighbor.clone();
+                    best_score = neighbor_score;
+                    println!("第 {} 代找到更佳解: makespan = {}", iter, best_score);
+                }
+
+                tabu_list.push(mask_ss, mask_ms);
+            }
+
+            println!("最優解 makespan: {}", best_score);
+            println!("最優解: {:?}", best_solution);
         }
         Err(e) => {
             eprintln!("Error reading problem file: {}", e);

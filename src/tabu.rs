@@ -34,4 +34,16 @@ impl TabuList {
     pub fn contains_ms(&self, mask: &Vec<u8>) -> bool {
         self.ms_list.contains(mask)
     }
+
+    // 顯示目前 tabu list 內容
+    pub fn print(&self) {
+        println!("TabuList (ss_list):");
+        for (i, mask) in self.ss_list.iter().enumerate() {
+            println!("  ss[{}]: {:?}", i, mask);
+        }
+        println!("TabuList (ms_list):");
+        for (i, mask) in self.ms_list.iter().enumerate() {
+            println!("  ms[{}]: {:?}", i, mask);
+        }
+    }
 }
