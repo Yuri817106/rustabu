@@ -44,45 +44,64 @@ fn main() {
             let mut best_score = evaluate(&problem, &best_solution);
 
             let mut tabu_list = TabuList::new(ss.len());
-            let max_iter = 1000;
+            let max_iter = 300;
+            let candidates_size = 5;
             let mut min_score = best_score;
             let mut max_score = best_score;
+            let mut no_improve_count = 0;  // 新增：無改善次數計數器
 
             let start_time = Instant::now();
 
             for iter in 0..max_iter {
-                let (neighbor, mask_ss, mask_ms) = perturb(&current_solution, problem.processor_count);
-                let neighbor_score = evaluate(&problem, &neighbor);
-
-                // 封鎖非法解
-                if neighbor_score >= 3000.0 {
-                    continue;
+                let mut candidates = Vec::with_capacity(candidates_size);
+                for _ in 0..candidates_size {
+                    let (neighbor, mask_ss, mask_ms, score) = perturb(&problem, &current_solution, problem.processor_count);
+                    candidates.push((neighbor, mask_ss, mask_ms, score));
                 }
 
-                let is_tabu = tabu_list.contains_ss(&mask_ss) && tabu_list.contains_ms(&mask_ms);
-                let aspiration = neighbor_score < best_score;
+                // 依照分數排序，取最佳可接受解
+                candidates.sort_by(|a, b| a.3.partial_cmp(&b.3).unwrap());
+                
+                // 先找出最佳可接受解
+                let mut best_candidate = None;
+                let mut best_candidate_score = f64::MAX;
 
-                if is_tabu && !aspiration {
-                    continue;
+                for (neighbor, mask_ss, mask_ms, score) in candidates {
+                    let is_tabu = tabu_list.contains_ss(&mask_ss) && tabu_list.contains_ms(&mask_ms);
+                    let aspiration = score < best_score;
+                    
+                    if (!is_tabu || aspiration) && score < best_candidate_score {
+                        best_candidate = Some((neighbor, mask_ss, mask_ms, score));
+                        best_candidate_score = score;
+                    }
                 }
 
-                // 更新目前解
-                current_solution = neighbor.clone();
+                if let Some((neighbor, mask_ss, mask_ms, score)) = best_candidate {
+                    current_solution = neighbor.clone();
 
-                if neighbor_score < best_score {
-                    best_solution = neighbor.clone();
-                    best_score = neighbor_score;
-                    println!("第 {} 代找到更佳解: makespan = {:.2}", iter, best_score);
-                }
+                    if score < best_score {
+                        best_solution = neighbor.clone();
+                        best_score = score;
+                        no_improve_count = 0;  // 重置計數器
+                        println!("第 {} 代找到更佳解: makespan = {:.2}", iter, best_score);
+                    } else {
+                        no_improve_count += 1;
+                        if no_improve_count >= max_iter / 10 {
+                            // println!("連續 {} 代無改善，重置現行解為最佳解", no_improve_count);
+                            current_solution = best_solution.clone();
+                            no_improve_count = 0;  // 重置計數器
+                        }
+                    }
 
-                if neighbor_score < min_score {
-                    min_score = neighbor_score;
-                }
-                if neighbor_score > max_score {
-                    max_score = neighbor_score;
-                }
+                    if score < min_score {
+                        min_score = score;
+                    }
+                    if score > max_score {
+                        max_score = score;
+                    }
 
-                tabu_list.push(mask_ss, mask_ms);
+                    tabu_list.push(mask_ss, mask_ms);
+                }
             }
 
             let elapsed = start_time.elapsed();
