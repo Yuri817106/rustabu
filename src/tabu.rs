@@ -8,7 +8,7 @@ pub struct TabuList {
 
 impl TabuList {
     pub fn new(task_count: usize) -> Self {
-        let max_len = task_count * 7; // 可依需求調整
+        let max_len = task_count / 3; // 可依需求調整
         TabuList {
             ss_list: VecDeque::with_capacity(max_len),
             ms_list: VecDeque::with_capacity(max_len),
