@@ -1,6 +1,7 @@
 use rustabu::io::load_problem_from_file;
 use rustabu::solution::Solution;
 use rustabu::utils::evaluate;
+use rustabu::search::perturb;
 
 fn main() {
     let path = "src/P4/n4_00.dag";
@@ -44,6 +45,12 @@ fn main() {
 
             let score = evaluate(&problem, &solution);
             println!("第 {} 組初始解的 makespan 評估值為: {}", which, score);
+
+            // 產生鄰近解並計算成本
+            let neighbor = perturb(&solution, problem.processor_count);
+            let neighbor_score = evaluate(&problem, &neighbor);
+            println!("鄰近解: {:?}", neighbor);
+            println!("鄰近解的 makespan 評估值為: {}", neighbor_score);
         }
         Err(e) => {
             eprintln!("Error reading problem file: {}", e);
