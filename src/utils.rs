@@ -4,7 +4,7 @@ use crate::solution::Solution;
 /// 評估一個解的總成本（makespan），若解非法則加上懲罰分數
 pub fn evaluate(problem: &Problem, solution: &Solution) -> f64 {
     // 非法解的懲罰分數
-    const PENALTY: f64 = 1000.0;
+    const PENALTY: f64 = 3000.0;
 
     // 1. 檢查解的長度是否正確
     let mut illegal = false;

@@ -39,7 +39,8 @@ fn main() {
     match load_problem_from_file(path) {
         Ok(problem) => {
             let (ss, ms) = &initial_solutions[which];
-            let mut best_solution = Solution::new(ss.clone(), ms.clone());
+            let mut current_solution = Solution::new(ss.clone(), ms.clone());
+            let mut best_solution = current_solution.clone();
             let mut best_score = evaluate(&problem, &best_solution);
 
             let mut tabu_list = TabuList::new(ss.len());
@@ -50,17 +51,23 @@ fn main() {
             let start_time = Instant::now();
 
             for iter in 0..max_iter {
-                let (neighbor, mask_ss, mask_ms) = perturb(&best_solution, problem.processor_count);
-
+                let (neighbor, mask_ss, mask_ms) = perturb(&current_solution, problem.processor_count);
                 let neighbor_score = evaluate(&problem, &neighbor);
 
-                // Tabu 條件 + Aspiration 條件
+                // 封鎖非法解
+                if neighbor_score >= 3000.0 {
+                    continue;
+                }
+
                 let is_tabu = tabu_list.contains_ss(&mask_ss) && tabu_list.contains_ms(&mask_ms);
                 let aspiration = neighbor_score < best_score;
 
                 if is_tabu && !aspiration {
                     continue;
                 }
+
+                // 更新目前解
+                current_solution = neighbor.clone();
 
                 if neighbor_score < best_score {
                     best_solution = neighbor.clone();
