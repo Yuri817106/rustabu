@@ -4,3 +4,4 @@ pub mod utils;
 pub mod search;
 pub mod solution;
 pub mod tabu;
+pub mod run;
