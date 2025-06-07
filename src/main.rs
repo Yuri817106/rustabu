@@ -3,7 +3,10 @@ use rustabu::solution::Solution;
 use rustabu::run::tabu_run;
 
 fn main() {
+    // 檔案讀取之路徑
     let path = "src/P4/n4_00.dag";
+
+    // 初始解
     let initial_solutions = vec![
         (
             vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
@@ -27,12 +30,14 @@ fn main() {
         ),
     ];
 
+    // 選擇初始解
     let which = std::env::args().nth(1).and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
     if which >= initial_solutions.len() {
         eprintln!("請輸入 0~{} 之間的整數作為初始解選擇", initial_solutions.len() - 1);
         return;
     }
 
+    // 執行
     match load_problem_from_file(path) {
         Ok(problem) => {
             let (ss, ms) = &initial_solutions[which];
