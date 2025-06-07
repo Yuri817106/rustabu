@@ -55,28 +55,28 @@ fn main() {
             for iter in 0..max_iter {
                 let mut candidates = Vec::with_capacity(candidates_size);
                 for _ in 0..candidates_size {
-                    let (neighbor, mask_ss, mask_ms, score) = perturb(&problem, &current_solution, problem.processor_count);
-                    candidates.push((neighbor, mask_ss, mask_ms, score));
+                    let (neighbor, mask_ss, score) = perturb(&problem, &current_solution, problem.processor_count);
+                    candidates.push((neighbor, mask_ss, score));
                 }
 
                 // 依照分數排序，取最佳可接受解
-                candidates.sort_by(|a, b| a.3.partial_cmp(&b.3).unwrap());
+                candidates.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
                 
                 // 先找出最佳可接受解
                 let mut best_candidate = None;
                 let mut best_candidate_score = f64::MAX;
 
-                for (neighbor, mask_ss, mask_ms, score) in candidates {
-                    let is_tabu = tabu_list.contains_ss(&mask_ss) && tabu_list.contains_ms(&mask_ms);
+                for (neighbor, mask_ss, score) in candidates {
+                    let is_tabu = tabu_list.contains_ss(&mask_ss);
                     let aspiration = score < best_score;
                     
                     if (!is_tabu || aspiration) && score < best_candidate_score {
-                        best_candidate = Some((neighbor, mask_ss, mask_ms, score));
+                        best_candidate = Some((neighbor, mask_ss, score));
                         best_candidate_score = score;
                     }
                 }
 
-                if let Some((neighbor, mask_ss, mask_ms, score)) = best_candidate {
+                if let Some((neighbor, mask_ss, score)) = best_candidate {
                     current_solution = neighbor.clone();
 
                     if score < best_score {
@@ -100,7 +100,7 @@ fn main() {
                         max_score = score;
                     }
 
-                    tabu_list.push(mask_ss, mask_ms);
+                    tabu_list.push(mask_ss);
                 }
             }
 

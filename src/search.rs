@@ -2,13 +2,12 @@ use crate::solution::Solution;
 use crate::utils::evaluate;
 use rand::Rng;
 
-pub fn perturb(problem: &crate::problem::Problem, solution: &Solution, processor_count: usize) -> (Solution, Vec<u8>, Vec<u8>, f64) {
+pub fn perturb(problem: &crate::problem::Problem, solution: &Solution, processor_count: usize) -> (Solution, Vec<u8>, f64) {
     let mut rng = rand::thread_rng();
     loop {
         let mut new_ss = solution.ss.clone();
         let mut new_ms = solution.ms.clone();
         let mut mask_ss = vec![0u8; new_ss.len()];
-        let mut mask_ms = vec![0u8; new_ms.len()];
 
         // swap ss 內兩個不同位置
         let len_ss = new_ss.len();
@@ -32,14 +31,13 @@ pub fn perturb(problem: &crate::problem::Problem, solution: &Solution, processor
                 new_proc = rng.gen_range(0..processor_count);
             }
             new_ms[i] = new_proc;
-            mask_ms[i] = 1;
         }
 
         let new_solution = Solution::new(new_ss.clone(), new_ms.clone());
         let score = evaluate(problem, &new_solution);
         // 只回傳合法解
         if score < 3000.0 {
-            return (new_solution, mask_ss, mask_ms, score);
+            return (new_solution, mask_ss, score);
         }
         // 否則繼續產生
     }
