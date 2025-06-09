@@ -58,6 +58,7 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> (Solution, Ve
     let cooling = 0.99;   // 降溫速率
 
     for iter in 0..max_iter {
+        // cost_history.push(evaluate(problem, &current_solution)); // 只在這裡 push 一次
         cost_history.push(best_score); // 只在這裡 push 一次
         let mut candidates = Vec::with_capacity(candidates_size);
         for _ in 0..candidates_size {
