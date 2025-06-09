@@ -5,3 +5,4 @@ pub mod search;
 pub mod solution;
 pub mod tabu;
 pub mod run;
+pub mod plot;

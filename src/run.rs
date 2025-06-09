@@ -4,8 +4,41 @@ use crate::search::perturb;
 use crate::tabu::TabuList;
 use crate::problem::Problem;
 use std::time::Instant;
+use rand::Rng;
 
-pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> Solution {
+// 隨機產生一個合法的解（隨機拓撲排序 + 隨機處理器分配）
+fn random_valid_solution(problem: &Problem) -> Solution {
+    let mut rng = rand::thread_rng();
+
+    // 1. 隨機拓撲排序
+    let mut in_deg = vec![0; problem.task_count];
+    for &(_from, to, _) in &problem.trans_data_vol {
+        in_deg[to] += 1;
+    }
+    
+    let mut ready: Vec<usize> = (0..problem.task_count).filter(|&i| in_deg[i] == 0).collect();
+    let mut ss = Vec::with_capacity(problem.task_count);
+    while !ready.is_empty() {
+        let idx = rng.gen_range(0..ready.len());
+        let task = ready.remove(idx);
+        ss.push(task);
+        for &(_from, to, _) in &problem.trans_data_vol {
+            if _from == task {
+                in_deg[to] -= 1;
+                if in_deg[to] == 0 {
+                    ready.push(to);
+                }
+            }
+        }
+    }
+    // 2. 隨機處理器分配
+    let ms: Vec<usize> = (0..problem.task_count)
+        .map(|_| rng.gen_range(0..problem.processor_count))
+        .collect();
+    Solution::new(ss, ms)
+}
+
+pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> (Solution, Vec<f64>) {
     let mut current_solution = initial_solution.clone();
     let mut best_solution = current_solution.clone();
     let mut best_score = evaluate(problem, &best_solution);
@@ -16,6 +49,7 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> Solution {
     let mut min_score = best_score;
     let mut max_score = best_score;
     let mut no_improve_count = 0;  // 新增：無改善次數計數器
+    let mut cost_history = Vec::with_capacity(max_iter);
 
     let start_time = Instant::now();
 
@@ -45,6 +79,7 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> Solution {
 
         if let Some((neighbor, mask_ss, score)) = best_candidate {
             current_solution = neighbor.clone();
+            cost_history.push(best_score);
 
             if score < best_score {
                 best_solution = neighbor.clone();
@@ -54,9 +89,9 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> Solution {
             } else {
                 no_improve_count += 1;
                 if no_improve_count >= max_iter / 5 {
-                    // println!("連續 {} 代無改善，重置現行解為最佳解", no_improve_count);
-                    current_solution = best_solution.clone();
-                    no_improve_count = 0;  // 重置計數器
+                    current_solution = random_valid_solution(problem);
+                    no_improve_count = 0;
+                    println!("第 {} 代重啟隨機合法新解", iter);
                 }
             }
 
@@ -79,5 +114,5 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> Solution {
     println!("最優與最差解差值: {:.2}", max_score - min_score);
     println!("總計算時間: {:.3} 秒", elapsed.as_secs_f64());
 
-    best_solution
+    (best_solution, cost_history)
 }

@@ -1,6 +1,7 @@
 use rustabu::io::load_problem_from_file;
 use rustabu::solution::Solution;
 use rustabu::run::tabu_run;
+use rustabu::plot::plot_convergence;
 
 fn main() {
     // 檔案讀取之路徑
@@ -42,7 +43,14 @@ fn main() {
         Ok(problem) => {
             let (ss, ms) = &initial_solutions[which];
             let initial_solution = Solution::new(ss.clone(), ms.clone());
-            let _best_solution = tabu_run(&problem, &initial_solution);
+            let (_best_solution, costs) = tabu_run(&problem, &initial_solution);
+            
+            // 繪製收斂曲線
+            if let Err(e) = plot_convergence(&costs, "convergence.png") {
+                eprintln!("繪圖錯誤: {}", e);
+            } else {
+                println!("收斂曲線已保存至 convergence.png");
+            }
         }
         Err(e) => {
             eprintln!("Error reading problem file: {}", e);
