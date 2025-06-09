@@ -125,6 +125,7 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> (Solution, Ve
 
     println!("最優解 makespan: {:.2}", best_score);
     println!("最優解: {:?}", best_solution);
+    println!("總執行迭代數: {}", max_iter);
     println!("總計算時間: {:.3} 秒", elapsed.as_secs_f64());
 
     (best_solution, cost_history)
