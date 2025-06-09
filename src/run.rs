@@ -101,7 +101,7 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> (Solution, Ve
                     println!("第 {} 代找到更佳解: makespan = {:.2}", iter, best_score);
                 } else {
                     no_improve_count += 1;
-                    if no_improve_count >= max_iter / 5 {
+                    if no_improve_count >= (max_iter / 5).min(200) {
                         current_solution = random_valid_solution(problem);
                         no_improve_count = 0;
                         println!("第 {} 代重啟隨機合法新解", iter);
