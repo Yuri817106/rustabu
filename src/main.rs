@@ -46,7 +46,7 @@ fn main() {
             let (_best_solution, costs) = tabu_run(&problem, &initial_solution);
             
             // 繪製收斂曲線
-            if let Err(e) = plot_convergence(&costs, "convergence.png") {
+            if let Err(e) = plot_convergence(&costs[..300], "convergence.png") {
                 eprintln!("繪圖錯誤: {}", e);
             } else {
                 println!("收斂曲線已保存至 convergence.png");

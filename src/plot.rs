@@ -8,12 +8,13 @@ pub fn plot_convergence(costs: &[f64], output_path: &str) -> Result<(), Box<dyn 
     let min_cost = costs.iter().fold(f64::INFINITY, |a, &b| a.min(b));
     let margin = (max_cost - min_cost) * 0.1;
 
+    let n = costs.len();
     let mut chart = ChartBuilder::on(&root)
         .caption("收斂曲線", ("sans-serif", 30))
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(40)
-        .build_cartesian_2d(0..costs.len(), (min_cost - margin)..(max_cost + margin))?;
+        .build_cartesian_2d(0..n, (min_cost - margin)..(max_cost + margin))?;
 
     chart
         .configure_mesh()
