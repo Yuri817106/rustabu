@@ -8,13 +8,9 @@ MAX_COST=500
 CURRENT_COUNT=0
 RUN_COUNT=0
 
-# 將舊的 temp.txt 移動到 final_temp.txt
-if [ -f "$TEMP_FILE" ]; then
-    mv "$TEMP_FILE" "$FINAL_TEMP"
-fi
-
 # 清空文件
 echo "" > "$TEMP_FILE"
+echo "" > "$FINAL_TEMP"
 echo "" > "$FINAL_OUTPUT"
 
 # 函數：將輸出同時顯示在螢幕和寫入 temp.txt
