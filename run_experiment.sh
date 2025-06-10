@@ -34,6 +34,7 @@ while [ $CURRENT_COUNT -lt $TARGET_COUNT ]; do
     
     # 將完整輸出寫入 final_temp.txt
     echo "$OUTPUT" >> "$FINAL_TEMP"
+    echo "" >> "$FINAL_TEMP"
     
     # 提取最終的 makespan (macOS 相容寫法)
     MAKESPAN=$(echo "$OUTPUT" | grep '最優解 makespan:' | grep -oE '[0-9]+\.[0-9]+')
