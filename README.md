@@ -59,11 +59,11 @@ pub struct Solution {
 我在擾動的過程中，是一定有機會產生非法解的，所以我對於非法解將會給予其一個很大的懲罰分數，並檢查是否大於等於這個懲罰分數，如果是，則拒絕接受這個解，並重新產生一個新的解。
 
 ## 實驗執行之環境
-OS: macOS Sequoia 15.5 arm64
-CPU: Apple M4 (10) @ 4.46 GHz
-GPU: Apple M4 (10) @ 1.58 GHz
-RAM: 16.00 GiB
-Rust version: 1.87.0
+OS: macOS Sequoia 15.5 arm64<br>
+CPU: Apple M4 (10) @ 4.46 GHz<br>
+GPU: Apple M4 (10) @ 1.58 GHz<br>
+RAM: 16.00 GiB<br>
+Rust version: 1.87.0<br>
 
 ## 實驗參數
 
