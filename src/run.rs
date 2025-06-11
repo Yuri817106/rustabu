@@ -7,7 +7,7 @@ use std::time::Instant;
 use rand::Rng;
 
 // 隨機產生一個合法的解（隨機拓撲排序 + 隨機處理器分配）
-fn random_valid_solution(problem: &Problem) -> Solution {
+pub fn random_valid_solution(problem: &Problem) -> Solution {
     let mut rng = rand::thread_rng();
 
     // 1. 隨機拓撲排序
@@ -123,8 +123,13 @@ pub fn tabu_run(problem: &Problem, initial_solution: &Solution) -> (Solution, Ve
 
     let elapsed = start_time.elapsed();
 
+    println!("------");
+    println!("初始解: {:?}", initial_solution);
+    println!("初始解 makespan: {:.2}", evaluate(problem, &initial_solution));
+    println!("------");
     println!("最優解 makespan: {:.2}", best_score);
     println!("最優解: {:?}", best_solution);
+    println!("------");
     println!("總執行迭代數: {}", max_iter);
     println!("總計算時間: {:.3} 秒", elapsed.as_secs_f64());
 
