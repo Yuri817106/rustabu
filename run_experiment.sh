@@ -9,22 +9,18 @@ TOTAL_RUNS=0
 BATCH_SIZE=5
 
 # 清空文件
-echo "" > "$TEMP_FILE"
-echo "" > "$FINAL_TEMP"
 echo "" > "$FINAL_OUTPUT"
 
 # 編譯程式
-log "正在編譯程式..."
-cargo build --release
+cargo build --release >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    log "編譯失敗，請檢查錯誤訊息"
+    echo "編譯失敗，請檢查錯誤訊息"
     exit 1
 fi
-log "編譯完成"
 
 # 函數：將輸出同時顯示在螢幕和寫入 temp.txt
 log() {
-    echo "$1" | tee -a "$TEMP_FILE"
+    echo "$1"
 }
 
 log "開始執行實驗，目標：找到 $TARGET_COUNT 個成本 < $MAX_COST 的解"
@@ -67,8 +63,8 @@ while true; do
         fi
         
         # 將完整輸出寫入 final_temp.txt
-        echo "$OUTPUT" >> "$FINAL_TEMP"
-        echo "" >> "$FINAL_TEMP"
+        # echo "$OUTPUT" >> "$FINAL_TEMP"
+        # echo "" >> "$FINAL_TEMP"
         
         # 提取最終的 makespan (macOS 相容寫法)
         MAKESPAN=$(echo "$OUTPUT" | grep '最優解 makespan:' | grep -oE '[0-9]+\.[0-9]+')
@@ -169,4 +165,3 @@ done
 log "\n實驗完成！"
 log "總共執行了 $TOTAL_RUNS 次，成功收集到 $BATCH_SIZE 個符合條件的解"
 log "結果已保存到 $FINAL_OUTPUT"
-log "完整執行記錄已保存到 $FINAL_TEMP"
