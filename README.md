@@ -3,19 +3,23 @@
 本專案為演化式計算課程期末報告，計算老師所提供之問題(./src/P4/ 裡面有詳細問題結構)的最低成本排程。
 
 ## 如何使用
-
+> 注意！！！以下所有命令都只在 macOS 和 Linux 上測試過，Windows作業系統我沒用過，不清楚是否可以透過這樣安裝並執行
 1. 安裝 Rust<br>
     ```bash
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
     ``` 
-2. 下載和執行本專案：
+2. 下載和執行本專案(未經過編譯最佳化，執行時間會較長)：
    ```bash
    git clone https://github.com/Yuri817106/rustabu.git
    cd rustabu
    
    cargo run
    ```
-
+3. 編譯本專案並執行(執行時間縮短)
+   ```bash
+   cargo build --release
+   ./target/release/rustabu
+   ```
 ## 研究目的與動機
 本專案使用 Tabu Search 的方式來求解老師所給的問題，並使用 Plotters 來畫出收斂曲線。
 對於 Tabu List 的設計則是我的動機，我曾經在課堂上提出過使用bit mask的方法來表示Tabu List，所以這專案就是驗證我所提之方法的可行性。
